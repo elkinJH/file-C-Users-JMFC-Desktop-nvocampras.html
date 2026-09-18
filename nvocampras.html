@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A Despensa · Quadro de Compras</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23C6975C'/%3E%3Ccircle cx='32' cy='26' r='9' fill='%23BF3B21'/%3E%3Crect x='18' y='30' width='28' height='24' rx='2' fill='%23FCF7EA'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Caveat:wght@400..700&family=Space+Grotesk:wght@400..700&display=swap" rel="stylesheet">
+<style>
+/* ---------- base ---------- */
+:root{
+  --cortica:#C6975C;
+  --papel:#FCF7EA;
+  --tinta:#2A2118;
+  --tinta-2:#8A7A62;
+  --vermelho:#BF3B21;
+  --madeira:#5D3F26;
+  --madeira-2:#7A5533;
+  --creme:#F3E8D2;
+  --mostarda:#C98F2D;
+  --petroleo:#3F7E7B;
+  --oliva:#75823F;
+  --linha-azul:#DEE7EC;
+  --linha-vermelha:#E4A196;
+  --ui:'Space Grotesk',sans-serif;
+  --mao:'Caveat',cursive;
+  --rotulo:'Alfa Slab One',serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  min-height:100vh;
+  background-color:var(--cortica);
+  background-image:
+    radial-gradient(rgba(88,58,24,.18) 1px, transparent 1.4px),
+    radial-gradient(rgba(255,244,214,.22) 1px, transparent 1.4px),
+    radial-gradient(rgba(122,86,40,.12) 2.2px, transparent 2.8px);
+  background-size:23px 23px, 29px 27px, 44px 41px;
+  background-position:0 0, 11px 8px, 7px 19px;
+  font-family:var(--ui);color:var(--tinta);-webkit-font-smoothing:antialiased;
+}
+/* grão da cortiça */
+body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.6;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 0.32 0 0 0 0 0.22 0 0 0 0 0.10 0 0 0 0.06 0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)'/%3E%3C/svg%3E")}
+/* vinheta */
+body::after{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(ellipse at 50% 28%, transparent 52%, rgba(56,36,14,.30))}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+ul{list-style:none}
+::selection{background:#FFE28A;color:var(--tinta)}
+:focus-visible{outline:2px solid var(--vermelho);outline-offset:2px}
+input:focus-visible,select:focus-visible{outline:none}
+.ic{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
+.pagina{position:relative;z-index:1;max-width:1220px;margin:0 auto;padding:10px 22px 70px}
+
+/* ---------- tabuleta pendurada ---------- */
+.tabuleta{position:relative;width:fit-content;margin:6px auto 42px;padding-top:56px;text-align:center}
+.corda{position:absolute;top:-6px;width:2px;height:62px;background:rgba(62,42,20,.5)}
+.corda.esq{left:28%}.corda.dir{right:28%}
+.tampo{position:relative;background:var(--madeira);border:3px solid #3B2812;border-radius:8px;
+  padding:16px 38px 15px;transform-origin:50% -62px;
+  box-shadow:0 12px 26px -6px rgba(43,28,10,.5), inset 0 0 0 2px rgba(255,235,200,.13);
+  animation:baloico 1.7s .15s ease-out}
+@keyframes baloico{0%{transform:rotate(0)}22%{transform:rotate(1.4deg)}52%{transform:rotate(-1deg)}78%{transform:rotate(.45deg)}100%{transform:rotate(0)}}
+.parafuso{position:absolute;top:9px;width:9px;height:9px;border-radius:50%;background:#2E1D0E;
+  box-shadow:inset 0 0 0 2px rgba(255,230,190,.28)}
+.parafuso.esq{left:11px}.parafuso.dir{right:11px}
+.tampo h1{font:400 clamp(30px,6vw,50px)/1 var(--rotulo);color:var(--creme);letter-spacing:.02em;text-shadow:0 2px 0 rgba(0,0,0,.35)}
+.tampo .sub{font:600 10.5px var(--ui);letter-spacing:.34em;text-transform:uppercase;color:rgba(243,232,210,.72);margin-top:9px;text-indent:.34em}
+
+/* ---------- grelha principal ---------- */
+.grelha{display:grid;grid-template-columns:392px minmax(0,1fr);gap:36px;align-items:start}
+.grelha>*{min-width:0}
+
+/* ---------- prancheta (formulário + contas) ---------- */
+.prancheta{position:sticky;top:18px;background:var(--madeira-2);border:2px solid #452E16;border-radius:12px;
+  padding:30px 13px 14px;box-shadow:0 18px 34px -14px rgba(40,25,8,.6)}
+.presilha{position:absolute;top:-15px;left:50%;transform:translateX(-50%);width:132px;height:34px;
+  background:#AEB4BA;border:2px solid #7C838A;border-radius:9px;
+  box-shadow:0 7px 12px -5px rgba(0,0,0,.5), inset 0 2px 2px rgba(255,255,255,.5)}
+.presilha::before{content:"";position:absolute;left:50%;top:9px;transform:translateX(-50%);
+  width:36px;height:11px;border-radius:6px;background:#7C838A;box-shadow:inset 0 2px 2px rgba(0,0,0,.3)}
+
+.dobra{display:none;align-items:center;gap:9px;margin:0 auto 10px;background:var(--papel);
+  padding:9px 15px;border-radius:3px;box-shadow:0 4px 8px -3px rgba(43,28,10,.45);
+  font:600 10px var(--ui);letter-spacing:.14em;text-transform:uppercase;transform:rotate(-.5deg)}
+.dobra .ic{width:13px;height:13px}
+
+.papel{background:var(--papel);border-radius:4px;padding:20px 20px 18px;box-shadow:0 5px 12px rgba(43,28,10,.28)}
+.prancheta.fechada .papel{display:none}
+.prancheta.a-editar .papel{box-shadow:inset 4px 0 0 var(--vermelho), 0 5px 12px rgba(43,28,10,.28)}
+.prancheta.a-editar .titulo-form{color:var(--vermelho)}
+
+.titulo-form{font:700 11.5px var(--ui);letter-spacing:.24em;text-transform:uppercase;color:var(--tinta);
+  margin-bottom:16px}
+
+/* campos */
+.flinha{display:flex;flex-wrap:wrap;gap:14px 16px;align-items:flex-end}
+.flinha+.flinha{margin-top:14px}
+.campo{display:flex;flex-direction:column;gap:6px;min-width:0;
+  font:600 9px var(--ui);letter-spacing:.2em;text-transform:uppercase;color:var(--tinta-2)}
+.campo:focus-within{color:var(--vermelho)}
+.c-nome{flex:1 1 100%}
+.c-nome input{font:600 22px/1.1 var(--mao)}
+.c-qtd{flex:0 0 64px}
+.c-uni{flex:0 0 74px}
+.c-preco{flex:1 1 110px}
+.c-loja{flex:1 1 140px}
+.c-nota{flex:1 1 100%}
+.c-nota input{font:500 19px/1.2 var(--mao)}
+.campo input[type=text]{border:0;border-bottom:1.5px solid var(--tinta);background:none;
+  font:500 15px var(--ui);color:var(--tinta);padding:5px 2px;border-radius:0;min-width:0}
+.campo input::placeholder{color:#B3A astro;} /* corrigido abaixo */
+.campo input::placeholder{color:#B4A78D;opacity:.8}
+.campo input:focus,.campo select:focus{border-color:var(--vermelho)}
+.din{display:flex;align-items:baseline;gap:6px;border-bottom:1.5px solid var(--tinta);padding:2px 2px 0}
+.din input{border:0!important;background:none;font:500 15px var(--ui);color:var(--tinta);flex:1;min-width:0;padding:5px 0}
+.din b{font:600 10px var(--ui);color:var(--tinta-2);white-space:nowrap}
+.campo:focus-within .din{border-color:var(--vermelho)}
+.campo select{width:100%;appearance:none;-webkit-appearance:none;border:0;border-bottom:1.5px solid var(--tinta);
+  background:transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%232A2118' stroke-width='1.5' fill='none'/%3E%3C/svg%3E") no-repeat right 2px center;
+  font:500 14px var(--ui);color:var(--tinta);padding:6px 16px 6px 2px;cursor:pointer}
+
+/* categorias como etiquetas coloridas */
+.c-cat{flex:1 1 100%}
+.tagr{display:flex;flex-wrap:wrap;gap:8px}
+.tagr input{position:absolute;opacity:0;width:0;height:0}
+.tagr span{display:block;border:1.5px solid rgba(42,33,24,.4);padding:7px 11px;border-radius:3px;
+  font:600 9.5px var(--ui);letter-spacing:.12em;text-transform:uppercase;color:var(--tinta);transition:.15s;cursor:pointer}
+.tagr input:checked+span{background:var(--tc);border-color:var(--tc);color:var(--papel)}
+.tagr input:focus-visible+span{outline:2px solid var(--vermelho);outline-offset:2px}
+.tagr[data-c=mercearia]{--tc:var(--mostarda)}
+.tagr[data-c=limpeza]{--tc:var(--petroleo)}
+.tagr[data-c=consumiveis]{--tc:var(--oliva)}
+
+.form-acoes{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.btn{display:inline-flex;align-items:center;gap:8px;border:1.5px solid var(--tinta);
+  font:600 10.5px var(--ui);letter-spacing:.14em;text-transform:uppercase;padding:11px 16px;transition:.15s;border-radius:3px}
+.btn:hover{background:var(--tinta);color:var(--papel)}
+.btn.solido{background:#34503F;border-color:#34503F;color:var(--papel)}
+.btn.solido:hover{background:var(--vermelho);border-color:var(--vermelho)}
+.erro{margin-top:11px;font:600 11px var(--ui);letter-spacing:.06em;color:var(--vermelho)}
+.tremor{animation:tremor .35s}
+@keyframes tremor{20%{transform:translateX(-4px)}40%{transform:translateX(4px)}60%{transform:translateX(-3px)}80%{transform:translateX(2px)}}
+
+/* contas */
+.contas{margin-top:20px;border-top:2px dashed rgba(42,33,24,.25);padding-top:13px}
+.linha{display:flex;align-items:baseline;gap:8px;padding:4px 0;
+  font:600 10px var(--ui);letter-spacing:.16em;text-transform:uppercase;color:var(--tinta-2)}
+.linha i{flex:1;border-bottom:2px dotted rgba(42,33,24,.3);transform:translateY(-3px)}
+.linha b{font:600 13.5px var(--ui);font-variant-numeric:tabular-nums;color:var(--tinta)}
+.linha.forte b{font-size:15.5px}
+.linha.falta b{color:var(--vermelho);font-size:15.5px}
+.pulsa{animation:pulsa .45s}
+@keyframes pulsa{0%{opacity:.15;transform:translateY(3px)}100%{opacity:1;transform:none}}
+.barra{margin-top:10px;height:9px;border:2px solid var(--tinta);border-radius:5px;overflow:hidden}
+.barra span{display:block;height:100%;width:0;background:var(--tinta);transition:width .55s cubic-bezier(.2,.8,.2,1)}
+.barra-txt{margin-top:7px;font:600 9px var(--ui);letter-spacing:.18em;text-transform:uppercase;color:var(--tinta-2);text-align:right}
+
+.acoes-fim{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.mini{border:1.5px solid rgba(42,33,24,.45);border-radius:3px;padding:8px 10px;
+  font:600 9px var(--ui);letter-spacing:.12em;text-transform:uppercase;color:var(--tinta);
+  display:inline-flex;align-items:center;gap:7px;transition:.15s}
+.mini .ic{width:13px;height:13px}
+.mini:hover{background:var(--tinta);color:var(--papel)}
+.mini.perigo:hover{background:var(--vermelho);border-color:var(--vermelho)}
+
+/* ---------- ficha de filtros ---------- */
+.ferramentas{position:relative;background:var(--papel);border-radius:4px;
+  padding:16px 18px 15px 52px;margin-bottom:34px;transform:rotate(-.35deg);
+  background-image:repeating-linear-gradient(0deg, transparent 0 27px, var(--linha-azul) 27px 28px);
+  box-shadow:0 10px 20px -9px rgba(40,25,8,.55)}
+.ferramentas::before{content:"";position:absolute;top:0;bottom:0;left:36px;width:1.5px;background:var(--linha-vermelha)}
+.fita{position:absolute;width:72px;height:21px;background:rgba(246,238,218,.85);
+  border-left:1px solid rgba(255,255,255,.4);border-right:1px solid rgba(255,255,255,.4);
+  box-shadow:0 2px 4px rgba(43,28,10,.14);top:-10px;left:22px;transform:rotate(-4deg)}
+.fita.f2{left:auto;right:26px;transform:rotate(3deg);width:58px}
+
+.f-linha{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;position:relative}
+.f-linha+.f-linha{margin-top:12px;padding-top:12px}
+.busca{flex:1 1 220px;display:flex;align-items:center;gap:10px;border-bottom:1.5px solid var(--tinta);padding:3px 2px;min-width:0}
+.busca .ic{color:var(--tinta-2)}
+.busca input{flex:1;border:0;background:none;font:600 21px/1.1 var(--mao);color:var(--tinta);min-width:0}
+.busca input::placeholder{color:#BCB096;font-weight:500}
+.busca:focus-within{border-color:var(--vermelho)}
+.limpa{color:var(--tinta-2);display:grid;place-items:center;width:20px;height:20px}
+.limpa:hover{color:var(--vermelho)}
+.pend{display:flex;align-items:center;gap:9px;font:600 9.5px var(--ui);letter-spacing:.14em;
+  text-transform:uppercase;color:var(--tinta-2);cursor:pointer;user-select:none}
+.pend input{position:absolute;opacity:0;width:0;height:0}
+.caixa{width:17px;height:17px;border:2px solid var(--tinta);border-radius:3px;display:grid;place-items:center;transition:background .15s;flex:none}
+.caixa .ic{width:11px;height:11px;color:var(--papel);opacity:0;transform:scale(.4);transition:.15s}
+.pend input:checked+.caixa,.chk input:checked+.caixa{background:var(--tinta)}
+.pend input:checked+.caixa .ic,.chk input:checked+.caixa .ic{opacity:1;transform:scale(1)}
+.pend input:focus-visible+.caixa,.chk input:focus-visible+.caixa{outline:2px solid var(--vermelho);outline-offset:2px}
+
+.seg{display:inline-flex;border:1.5px solid var(--tinta);border-radius:3px;overflow:hidden}
+.seg button{font:600 9.5px var(--ui);letter-spacing:.12em;text-transform:uppercase;padding:9px 12px}
+.seg button+button{border-left:1.5px solid var(--tinta)}
+.seg button.on{background:var(--tinta);color:var(--papel)}
+
+.f-chips{display:flex;flex-wrap:wrap;gap:8px;flex:1 1 auto}
+.fchip{border:1.5px solid rgba(42,33,24,.4);border-radius:3px;padding:7px 10px;
+  font:600 9.5px var(--ui);letter-spacing:.1em;text-transform:uppercase;transition:.15s}
+.fchip b{font-weight:500;opacity:.55;margin-left:4px}
+.fchip:hover{border-color:var(--tinta)}
+.fchip.on{background:var(--tinta);border-color:var(--tinta);color:var(--papel)}
+.fchip.on b{opacity:.7}
+
+.sel-linha{display:flex;flex-wrap:wrap;gap:10px 18px;margin-left:auto}
+.sel-linha label{display:flex;align-items:center;gap:8px;font:600 9px var(--ui);
+  letter-spacing:.18em;text-transform:uppercase;color:var(--tinta-2)}
+.sel-linha select{appearance:none;-webkit-appearance:none;border:0;border-bottom:1.5px solid var(--tinta);
+  background:transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%232A2118' stroke-width='1.5' fill='none'/%3E%3C/svg%3E") no-repeat right 3px center;
+  font:600 10.5px var(--ui);letter-spacing:.06em;color:var(--tinta);padding:7px 18px 7px 2px;cursor:pointer}
+
+/* ---------- zonas (secções) do quadro ---------- */
+.zona{margin-bottom:38px}
+.etiqueta{position:relative;display:inline-flex;align-items:baseline;gap:12px;flex-wrap:wrap;
+  background:var(--papel);border-radius:3px;padding:10px 16px 9px;margin:0 0 22px;
+  transform:rotate(var(--erot,-.5deg));box-shadow:0 5px 10px -4px rgba(43,28,10,.5)}
+.etiqueta .fita{width:54px;height:18px;top:-9px;left:14px}
+.etiqueta h3{font:700 13px var(--ui);letter-spacing:.16em;text-transform:uppercase}
+.etiqueta .info{font:600 9.5px var(--ui);letter-spacing:.12em;text-transform:uppercase;color:var(--tinta-2)}
+
+.fichas{display:flex;flex-wrap:wrap;gap:26px 20px;align-items:flex-start}
+
+/* ---------- papeis pregados ---------- */
+.slip{position:relative;width:212px;background:var(--papel);border-radius:3px;
+  padding:17px 14px 12px;display:flex;flex-direction:column;gap:7px;
+  transform:rotate(var(--rot,0deg));transition:transform .18s ease,box-shadow .18s ease;z-index:1;
+  box-shadow:0 3px 6px rgba(43,28,10,.28), 0 16px 24px -14px rgba(43,28,10,.4)}
+.slip::before{content:"";position:absolute;top:0;left:0;right:0;height:5px;border-radius:3px 3px 0 0;background:var(--cat)}
+.sl-sl-mercearia{--cat:var(--mostarda)}
+.sl-sl-limpeza{--cat:var(--petroleo)}
+.sl-sl-consumiveis{--cat:var(--oliva)}
+.slip:hover,.slip:focus-within{transform:rotate(0deg) translateY(-4px);z-index:4;
+  box-shadow:0 6px 10px rgba(43,28,10,.3), 0 24px 32px -14px rgba(43,28,10,.45)}
+.slip.novo{animation:pendurar .55s cubic-bezier(.2,.9,.3,1.15)}
+@keyframes pendurar{0%{transform:rotate(var(--rot)) translateY(-34px) scale(1.1);opacity:0}
+  55%{opacity:1;transform:rotate(var(--rot)) translateY(3px) scale(1.02)}
+  100%{transform:rotate(var(--rot))}}
+.slip.a-editar{outline:2px dashed var(--vermelho);outline-offset:5px}
+
+.pin{position:absolute;top:-10px;left:50%;margin-left:-7px;width:14px;height:14px;border-radius:50%;
+  box-shadow:0 5px 6px -1px rgba(30,18,5,.6), inset -2px -3px 4px rgba(0,0,0,.4), inset 2px 2px 3px rgba(255,255,255,.55)}
+.pin-a{background:#C13A22}.pin-b{background:#3F7E7B}.pin-c{background:#C98F2D}
+
+.chk{cursor:pointer;display:flex}
+.chk input{position:absolute;opacity:0;width:0;height:0}
+.chk .caixa{width:20px;height:20px;margin-top:3px}
+
+.slip-top{display:flex;gap:10px;align-items:flex-start}
+.nome{font:600 22px/1.08 var(--mao);word-break:break-word;min-width:0}
+mark{background:#FFE28A;color:var(--tinta);padding:0 2px;border-radius:2px}
+.meta{display:flex;flex-wrap:wrap;gap:5px 9px;align-items:center;
+  font:600 8.5px var(--ui);letter-spacing:.12em;text-transform:uppercase;color:var(--tinta-2)}
+.cat-tag{display:inline-flex;align-items:center;gap:5px}
+.ponto{width:7px;height:7px;border-radius:50%;background:currentColor;display:inline-block}
+.loja-tag{border:1.2px solid rgba(42,33,24,.55);padding:2px 6px;color:var(--tinta)}
+.nota{font:500 17px/1.15 var(--mao);color:#7A6C55;word-break:break-word}
+.preco{margin-top:6px;display:flex;justify-content:flex-end;align-items:baseline;gap:6px;flex-wrap:wrap}
+.preco b{font:700 15px var(--ui);font-variant-numeric:tabular-nums}
+.preco b.np{color:#C4B697}
+.preco small{font:600 9.5px var(--ui);color:var(--tinta-2);font-variant-numeric:tabular-nums}
+
+.accoes{position:absolute;top:11px;right:9px;display:flex;gap:3px;opacity:0;transition:opacity .15s}
+.slip:hover .accoes,.slip:focus-within .accoes{opacity:1}
+@media(hover:none){.accoes{opacity:1}}
+.ico{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;
+  background:rgba(252,247,234,.94);color:var(--tinta-2);box-shadow:0 2px 4px rgba(43,28,10,.2);transition:.12s}
+.ico .ic{width:13px;height:13px}
+.ico:hover{color:var(--tinta)}
+.ico.perigo:hover{color:var(--vermelho)}
+
+/* carimbo COMPRADO */
+.selo{position:absolute;left:50%;top:44%;transform:translate(-50%,-50%) rotate(-13deg);
+  border:3px double var(--vermelho);color:var(--vermelho);border-radius:5px;
+  font:700 11px var(--ui);letter-spacing:.26em;text-indent:.26em;text-transform:uppercase;
+  padding:5px 9px 4px;opacity:0;pointer-events:none;mix-blend-mode:multiply;white-space:nowrap}
+.slip.ok .selo{opacity:.9;animation:carimbo .3s cubic-bezier(.2,.8,.2,1)}
+@keyframes carimbo{from{transform:translate(-50%,-50%) rotate(-13deg) scale(1.9);opacity:0}}
+.slip.ok .nome{text-decoration:line-through;text-decoration-color:var(--vermelho);text-decoration-thickness:2px}
+.slip.ok .corpo,.slip.ok .preco{opacity:.68}
+.corpo,.preco{transition:opacity .3s}
+
+/* ---------- estado vazio ---------- */
+.nota-vazia{position:relative;max-width:420px;margin:26px auto;background:var(--papel);
+  border-radius:3px;padding:34px 26px 28px;text-align:center;transform:rotate(.8deg);
+  box-shadow:0 8px 16px -6px rgba(43,28,10,.45)}
+.nota-vazia .fita{left:50%;margin-left:-36px;top:-10px;transform:rotate(-2deg)}
+.v-t{font:600 26px/1.1 var(--mao)}
+.v-s{font:600 9.5px var(--ui);letter-spacing:.18em;text-transform:uppercase;color:var(--tinta-2);margin:10px 0 16px}
+
+/* ---------- rodapé / toasts ---------- */
+.nota-fim{margin-top:40px;text-align:center;font:500 10px/1.9 var(--ui);letter-spacing:.14em;
+  text-transform:uppercase;color:rgba(255,241,214,.72)}
+#toasts{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);z-index:60;
+  display:flex;flex-direction:column;align-items:center;gap:8px;width:min(92vw,480px);pointer-events:none}
+.toast{pointer-events:auto;display:flex;align-items:center;gap:16px;background:#241C12;color:var(--creme);
+  font:500 12px var(--ui);padding:13px 18px;border-radius:8px;
+  box-shadow:0 14px 30px rgba(20,12,4,.5);animation:t-entra .3s cubic-bezier(.2,.8,.2,1)}
+.toast.saindo{animation:t-sai .25s forwards}
+.toast button{font:700 10.5px var(--ui);letter-spacing:.12em;text-transform:uppercase;
+  color:#E9B44C;text-decoration:underline;text-underline-offset:3px;white-space:nowrap}
+.toast button:hover{color:#F5CE7E}
+@keyframes t-entra{from{opacity:0;transform:translateY(14px)}}
+@keyframes t-sai{to{opacity:0;transform:translateY(8px)}}
+
+/* ---------- responsivo ---------- */
+@media(max-width:980px){
+  .grelha{grid-template-columns:1fr;gap:26px}
+  .prancheta{position:static;max-width:520px;margin:0 auto}
+  .dobra{display:inline-flex}
+  .ferramentas{padding-left:44px}
+  .ferramentas::before{left:30px}
+}
+@media(max-height:760px) and (min-width:981px){.prancheta{position:static}}
+@media(max-width:600px){
+  .pagina{padding:8px 14px 60px}
+  .tabuleta{padding-top:44px}
+  .corda{height:50px}
+  .fichas{gap:22px 14px}
+  .slip{width:calc(50% - 7px);min-width:0}
+}
+@media(max-width:390px){.slip{width:100%}}
+
+/* ---------- impressão ---------- */
+.cab-print{display:none}
+@media print{
+  body{background:#fff}
+  body::before,body::after,.ferramentas,.prancheta,.tabuleta,.accoes,.pin,.fita,.nota-fim{display:none!important}
+  .cab-print{display:block;font:700 14px var(--ui);margin-bottom:14px}
+  .slip{transform:none!important;box-shadow:none;border:1px solid #999;width:30%}
+  .zona{margin-bottom:14px}
+}
+
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
+}
+</style>
+</head>
+<body>
+
+<!-- ícones -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-mais" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5v14"/></symbol>
+  <symbol id="i-busca" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+  <symbol id="i-lapis" viewBox="0 0 24 24"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></symbol>
+  <symbol id="i-lixo" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+  <symbol id="i-copia" viewBox="0 0 24 24"><rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+  <symbol id="i-borracha" viewBox="0 0 24 24"><path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"/><path d="M22 21H7"/><path d="m5 11 9 9"/></symbol>
+</svg>
+
+<div class="pagina">
+
+  <!-- tabuleta -->
+  <header class="tabuleta">
+    <span class="corda esq" aria-hidden="true"></span>
+    <span class="corda dir" aria-hidden="true"></span>
+    <div class="tampo">
+      <span class="parafuso esq" aria-hidden="true"></span>
+      <span class="parafuso dir" aria-hidden="true"></span>
+      <h1>A Despensa</h1>
+      <p class="sub">mercearia · limpeza · consumíveis</p>
+    </div>
+  </header>
+
+  <div class="grelha">
+
+    <!-- prancheta: formulário + contas -->
+    <aside class="prancheta" id="prancheta">
+      <div class="presilha" aria-hidden="true"></div>
+      <button class="dobra" type="button" id="dobra">
+        <svg class="ic"><use href="#i-chev" id="dobra-ico"/></svg>
+        <span id="dobra-txt">ocultar formulário</span>
+      </button>
+      <div class="papel">
+        <h2 class="titulo-form" id="f-titulo">escrever na lista</h2>
+        <form id="form" novalidate>
+          <div class="flinha">
+            <label class="campo c-nome">artigo
+              <input id="f-nome" type="text" placeholder="ex.: azeite virgem extra 1 L" autocomplete="off" autofocus>
+            </label>
+            <label class="campo c-qtd">qtd
+              <input id="f-qtd" type="text" inputmode="decimal" value="1" autocomplete="off">
+            </label>
+            <label class="campo c-uni">unidade
+              <select id="f-uni">
+                <option>un</option><option>kg</option><option>g</option><option>L</option>
+                <option>ml</option><option>emb</option><option>pct</option><option>dz</option>
+              </select>
+            </label>
+            <label class="campo c-preco">preço
+              <span class="din">
+                <input id="f-preco" type="text" inputmode="decimal" placeholder="0,00" autocomplete="off">
+                <b>€ / <span id="f-uni-suf">un</span></b>
+              </span>
+            </label>
+            <label class="campo c-loja">loja
+              <input id="f-loja" type="text" list="lojas" autocomplete="off" placeholder="ex.: Pingo Doce">
+            </label>
+          </div>
+          <div class="flinha">
+            <fieldset class="campo c-cat" style="border:0">categoria
+              <div class="tagr" data-c="mercearia">
+                <label><input type="radio" name="f-cat" value="mercearia" checked><span>mercearia</span></label>
+              </div>
+              <div class="tagr" data-c="limpeza">
+                <label><input type="radio" name="f-cat" value="limpeza"><span>limpeza</span></label>
+              </div>
+              <div class="tagr" data-c="consumiveis">
+                <label><input type="radio" name="f-cat" value="consumiveis"><span>consumíveis</span></label>
+              </div>
+            </fieldset>
+            <label class="campo c-nota">nota (opcional)
+              <input id="f-nota" type="text" autocomplete="off" placeholder="marca, variedade, obs…">
+            </label>
+          </div>
+          <div class="form-acoes">
+            <button class="btn solido" type="submit" id="f-submit">
+              <svg class="ic" style="width:13px;height:13px"><use href="#i-mais" id="f-submit-ico"/></svg>
+              <span id="f-submit-txt">pregar no quadro</span>
+            </button>
+            <button class="btn" type="button" id="f-cancelar" hidden>cancelar</button>
+          </div>
+          <p class="erro" id="f-erro" hidden>— indica pelo menos o nome do artigo</p>
+        </form>
+
+        <div class="contas">
+          <div class="linha"><span>artigos</span><i></i><b id="v-n">0</b></div>
+          <div class="linha"><span>pendentes</span><i></i><b id="v-pend">0</b></div>
+          <div class="linha forte"><span>total estimado</span><i></i><b id="v-est">0,00 €</b></div>
+          <div class="linha"><span>já comprado</span><i></i><b id="v-pago">0,00 €</b></div>
+          <div class="linha falta"><span>falta gastar</span><i></i><b id="v-falta">0,00 €</b></div>
+          <div class="barra"><span id="v-barra"></span></div>
+          <p class="barra-txt"><span id="v-pct">0%</span> no cesto</p>
+        </div>
+
+        <div class="acoes-fim">
+          <button class="mini" type="button" id="btn-copiar"><svg class="ic"><use href="#i-copia"/></svg> copiar</button>
+          <button class="mini" type="button" id="btn-limpar-comp"><svg class="ic"><use href="#i-borracha"/></svg> tirar comprados</button>
+          <button class="mini perigo" type="button" id="btn-limpar-tudo"><svg class="ic"><use href="#i-lixo"/></svg> limpar quadro</button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- lado direito: filtros + quadro -->
+    <section>
+      <div class="cab-print">Lista de compras · A Despensa · <span id="p-data"></span></div>
+
+      <section class="ferramentas" aria-label="filtros e pesquisa">
+        <span class="fita" aria-hidden="true"></span>
+        <span class="fita f2" aria-hidden="true"></span>
+        <div class="f-linha">
+          <label class="busca">
+            <svg class="ic"><use href="#i-busca"/></svg>
+            <input id="t-busca" type="text" placeholder="procurar artigo, loja, nota…" autocomplete="off">
+            <button type="button" class="limpa" id="t-limpa" hidden aria-label="limpar pesquisa"><svg class="ic"><use href="#i-x"/></svg></button>
+          </label>
+          <label class="pend">
+            <input type="checkbox" id="t-pend">
+            <span class="caixa"><svg class="ic"><use href="#i-check"/></svg></span>
+            só pendentes
+          </label>
+          <div class="seg" role="group" aria-label="agrupar por">
+            <button type="button" data-agrupar="loja" class="on">por loja</button>
+            <button type="button" data-agrupar="cat">por categoria</button>
+          </div>
+        </div>
+        <div class="f-linha">
+          <div class="f-chips" id="t-cats">
+            <button type="button" class="fchip on" data-cat="todas">todas <b>0</b></button>
+            <button type="button" class="fchip" data-cat="mercearia">mercearia <b>0</b></button>
+            <button type="button" class="fchip" data-cat="limpeza">limpeza <b>0</b></button>
+            <button type="button" class="fchip" data-cat="consumiveis">consumíveis <b>0</b></button>
+          </div>
+          <div class="sel-linha">
+            <label>loja <select id="t-loja"><option value="todas">todas</option></select></label>
+            <label>ordem
+              <select id="t-ordem">
+                <option value="adicao">ordem de entrada</option>
+                <option value="nome">nome (A–Z)</option>
+                <option value="preco">preço (crescente)</option>
+                <option value="preco-desc">preço (decrescente)</option>
+              </select>
+            </label>
+          </div>
+        </div>
+      </section>
+
+      <div id="zonas"></div>
+    </section>
+  </div>
+
+  <p class="nota-fim">as sugestões de loja — continente · pingo doce · lidl · aldi · minipreço · intermarché · auchan/jumbo · e.leclerc · spar · maxiloja — são só para acelerar · escreve a que quiseres<br>a lista grava-se automaticamente neste navegador</p>
+</div>
+
+<datalist id="lojas">
+  <option>Continente</option><option>Pingo Doce</option><option>Lidl</option><option>Aldi</option>
+  <option>Minipreço</option><option>Intermarché</option><option>Auchan/Jumbo</option><option>E.Leclerc</option>
+  <option>SPAR</option><option>Maxiloja</option><option>El Corte Inglés</option><option>Supercor</option>
+  <option>Coviran</option><option>Makro</option>
+</datalist>
+
+<div id="toasts" aria-live="polite"></div>
+
+<script>
+/* ============ utilitários ============ */
+const $  = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const norm = s => String(s ?? '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+const eur  = n => new Intl.NumberFormat('pt-PT',{style:'currency',currency:'EUR'}).format(n);
+const fmtN = n => (n ?? 1).toLocaleString('pt-PT',{maximumFractionDigits:2});
+const parseNum = s => { const v = parseFloat(String(s ?? '').replace(',','.')); return isFinite(v) ? Math.abs(v) : null; };
+const uid  = () => Math.random().toString(36).slice(2,9) + Date.now().toString(36);
+const hash = s => { let h = 0; for (const c of s) h = (h*33 + c.charCodeAt(0)) | 0; return Math.abs(h); };
+const ROT = [-2.1,-1.3,-.6,.9,1.7,2.4,-1.8,1.1];
+const PIN = ['a','b','c'];
+
+const CATS = { mercearia:'Mercearia', limpeza:'Limpeza', consumiveis:'Consumíveis' };
+const catDe  = i => CATS[i.cat] ? i.cat : 'consumiveis';
+const lojaDe = i => (i.loja || '').trim() || 'Sem loja definida';
+const tI = i => i.preco == null ? null : i.preco * (i.qty || 1);
+
+/* ============ estado ============ */
+const CHAVE = 'despensa.quadro.v1';
+const VIEW_PADRAO = { busca:'', cat:'todas', loja:'todas', pend:false, agrupar:'loja', ordem:'adicao' };
+let state = { items:[], view:{...VIEW_PADRAO} };
+let editId = null;
+
+function carregar(){
+  try{
+    const d = JSON.parse(localStorage.getItem(CHAVE));
+    if (d && Array.isArray(d.items)){
+      state.items = d.items;
+      state.view  = { ...VIEW_PADRAO, ...(d.view || {}) };
+      return true;
+    }
+  }catch(e){}
+  return false;
+}
+function salvar(){ try{ localStorage.setItem(CHAVE, JSON.stringify(state)); }catch(e){} }
+
+function seed(){
+  const base = [
+    ['Azeite virgem extra 1 L','mercearia','Continente',1,'un',8.99,'em promoção esta semana',false],
+    ['Leite meio-gordo 1 L','mercearia','Minipreço',6,'un',0.89,null,false],
+    ['Arroz agulha 1 kg','mercearia','Auchan/Jumbo',2,'un',1.49,null,false],
+    ['Bananas','mercearia','Pingo Doce',1.5,'kg',1.19,null,false],
+    ['Café moído 250 g','mercearia','Pingo Doce',1,'un',2.99,null,true],
+    ['Lixívia 1,5 L','limpeza','Continente',1,'un',0.95,null,true],
+    ['Pastilhas máquina da loiça','limpeza','Lidl',1,'emb',5.49,'a marca branca rende mais',false],
+    ['Papel higiénico 12 rolos','consumiveis','Pingo Doce',1,'emb',4.79,null,false],
+    ['Garrafões de água 5 L','consumiveis','SPAR',2,'un',1.10,null,false],
+  ];
+  let t = Date.now();
+  state.items = base.map(([nome,cat,loja,qty,uni,preco,nota,comprado]) =>
+    ({ id:uid(), nome, cat, loja, qty, uni, preco, nota, comprado, criadoEm:t++ }));
+}
+
+/* ============ filtro / agrupamento ============ */
+function visiveis(){
+  const v = state.view;
+  let a = [...state.items];
+  if (v.cat  !== 'todas') a = a.filter(i => catDe(i)  === v.cat);
+  if (v.loja !== 'todas') a = a.filter(i => lojaDe(i) === v.loja);
+  if (v.pend)             a = a.filter(i => !i.comprado);
+  if (v.busca.trim()){
+    const q = norm(v.busca);
+    a = a.filter(i => norm(i.nome).includes(q) || norm(i.nota).includes(q) || norm(i.loja).includes(q));
+  }
+  if (v.ordem === 'nome')            a.sort((x,y) => x.nome.localeCompare(y.nome,'pt'));
+  else if (v.ordem === 'preco')      a.sort((x,y) => (tI(x) ?? 1e12) - (tI(y) ?? 1e12));
+  else if (v.ordem === 'preco-desc') a.sort((x,y) => (tI(y) ?? -1e12) - (tI(x) ?? -1e12));
+  else                               a.sort((x,y) => (x.criadoEm||0) - (y.criadoEm||0));
+  return a;
+}
+const grupoDe = i => state.view.agrupar === 'cat' ? CATS[catDe(i)] : lojaDe(i);
+
+function hl(t){
+  const q = state.view.busca.trim();
+  if (!q) return esc(t);
+  const i = norm(t).indexOf(norm(q));
+  if (i < 0) return esc(t);
+  return esc(t.slice(0,i)) + '<mark>' + esc(t.slice(i, i + norm(q).length)) + '</mark>' + esc(t.slice(i + norm(q).length));
+}
+
+/* ============ render ============ */
+function slipHTML(i){
+  const h = hash(i.id), rot = ROT[h % ROT.length], pin = PIN[h % 3];
+  const cat = catDe(i), q = i.qty ?? 1, total = tI(i);
+  const preco = total != null
+    ? `<b>${eur(total)}</b><small>${fmtN(q)} × ${eur(i.preco)}</small>`
+    : `<b class="np">—</b><small>sem preço</small>`;
+  const lojaTag = state.view.agrupar === 'loja' ? '' : (i.loja ? `<span class="loja-tag">${esc(i.loja)}</span>` : '');
+  return `<li class="slip sl-${cat} pin-${pin}${i.comprado ? ' ok' : ''}" style="--rot:${rot}deg" data-id="${i.id}">
+    <span class="pin" aria-hidden="true"></span>
+    <div class="slip-top">
+      <label class="chk" title="marcar como comprado">
+        <input type="checkbox"${i.comprado ? ' checked' : ''} data-ac="toggle">
+        <span class="caixa"><svg class="ic"><use href="#i-check"/></svg></span>
+      </label>
+      <p class="nome">${hl(i.nome)}</p>
+    </div>
+    <p class="meta">
+      <span class="cat-tag"><i class="ponto"></i>${CATS[cat]}</span>
+      <span>${fmtN(q)} ${esc(i.uni || 'un')}</span>
+      ${lojaTag}
+    </p>
+    ${i.nota ? `<p class="nota">“${esc(i.nota)}”</p>` : ''}
+    <p class="preco">${preco}</p>
+    <div class="accoes">
+      <button class="ico" type="button" data-ac="editar" title="editar"><svg class="ic"><use href="#i-lapis"/></svg></button>
+      <button class="ico perigo" type="button" data-ac="apagar" title="remover"><svg class="ic"><use href="#i-lixo"/></svg></button>
+    </div>
+    <span class="selo" aria-hidden="true">comprado</span>
+  </li>`;
+}
+
+function vazioHTML(t, s, btn = ''){
+  return `<div class="nota-vazia"><span class="fita" aria-hidden="true"></span>
+    <p class="v-t">${esc(t)}</p><p class="v-s">${esc(s)}</p>${btn}</div>`;
+}
+
+function renderZonas(){
+  const box = $('#zonas'), arr = visiveis();
+  if (!state.items.length){
+    box.innerHTML = vazioHTML('O quadro está despido.', 'escreve o primeiro artigo na prancheta');
+    return;
+  }
+  if (!arr.length){
+    box.innerHTML = vazioHTML('nada encontrado', 'nenhum artigo corresponde aos filtros',
+      '<button class="mini" type="button" data-ac="limparfiltros">limpar filtros</button>');
+    return;
+  }
+  const grupos = {};
+  arr.forEach(i => (grupos[grupoDe(i)] ??= []).push(i));
+  let chaves = Object.keys(grupos);
+  if (state.view.agrupar === 'cat')
+    chaves.sort((a,b) => ['Mercearia','Limpeza','Consumíveis'].indexOf(a) - ['Mercearia','Limpeza','Consumíveis'].indexOf(b));
+  else
+    chaves.sort((a,b) => a.localeCompare(b,'pt'));
+
+  box.innerHTML = chaves.map(g => {
+    const its = grupos[g], sub = its.reduce((s,i) => s + (tI(i) ?? 0), 0);
+    const erot = ((hash(g) % 5) - 2) * .45;
+    return `<section class="zona" style="--erot:${erot}deg">
+      <header class="etiqueta">
+        <span class="fita" aria-hidden="true"></span>
+        <h3>${esc(g)}</h3>
+        <span class="info">${its.length} ${its.length === 1 ? 'artigo' : 'artigos'}${sub > 0 ? ' · ' + eur(sub) : ''}</span>
+      </header>
+      <ul class="fichas">${its.map(slipHTML).join('')}</ul>
+    </section>`;
+  }).join('');
+
+  if (state.novoId){
+    box.querySelector(`.slip[data-id="${state.novoId}"]`)?.classList.add('novo');
+    state.novoId = null;
+  }
+}
+
+const setV = (sel, txt) => { const el = $(sel);
+  if (el.textContent !== txt){ el.textContent = txt; el.classList.remove('pulsa'); void el.offsetWidth; el.classList.add('pulsa'); } };
+
+function renderContas(){
+  const it = state.items;
+  const est  = it.reduce((s,i) => s + (tI(i) ?? 0), 0);
+  const pago = it.filter(i => i.comprado).reduce((s,i) => s + (tI(i) ?? 0), 0);
+  setV('#v-n', it.length);
+  setV('#v-pend', it.filter(i => !i.comprado).length);
+  setV('#v-est', eur(est));
+  setV('#v-pago', eur(pago));
+  setV('#v-falta', eur(est - pago));
+  const pct = it.length ? Math.round(it.filter(i => i.comprado).length / it.length * 100) : 0;
+  $('#v-barra').style.width = pct + '%';
+  $('#v-pct').textContent = pct + '%';
+}
+
+function updateChips(){
+  $$('#t-cats .fchip').forEach(b => {
+    const c = b.dataset.cat;
+    b.querySelector('b').textContent =
+      c === 'todas' ? state.items.length : state.items.filter(i => catDe(i) === c).length;
+    b.classList.toggle('on', state.view.cat === c);
+    b.setAttribute('aria-pressed', state.view.cat === c);
+  });
+}
+
+function updateLojas(){
+  const sel = $('#t-loja'), actual = state.view.loja;
+  const lojas = [...new Set(state.items.map(lojaDe))].sort((a,b) => a.localeCompare(b,'pt'));
+  sel.innerHTML = `<option value="todas">todas</option>` + lojas.map(l => `<option>${esc(l)}</option>`).join('');
+  if (!lojas.includes(actual)) state.view.loja = 'todas';
+  sel.value = state.view.loja;
+}
+
+function render(){ renderZonas(); renderContas(); updateChips(); updateLojas(); }
+
+/* ============ toasts ============ */
+function toast(msg, acao, fn){
+  const box = $('#toasts');
+  if (box.children.length >= 3) box.firstElementChild.remove();
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.innerHTML = `<span>${esc(msg)}</span>${acao ? `<button type="button">${esc(acao)}</button>` : ''}`;
+  const fechar = () => { t.classList.add('saindo'); setTimeout(() => t.remove(), 240); };
+  if (acao) t.querySelector('button').onclick = () => { fn(); fechar(); };
+  box.appendChild(t);
+  setTimeout(fechar, 4500);
+}
+
+/* ============ ações ============ */
+function alternar(id, slip){
+  const i = state.items.find(x => x.id === id);
+  if (!i) return;
+  i.comprado = !i.comprado; salvar();
+  slip.classList.toggle('ok', i.comprado);
+  slip.querySelector('input').checked = i.comprado;
+  renderContas(); updateChips();
+  if (state.view.pend) setTimeout(() => { if (state.view.pend) renderZonas(); }, 750);
+}
+
+function apagar(id){
+  const idx = state.items.findIndex(x => x.id === id);
+  if (idx < 0) return;
+  const [item] = state.items.splice(idx, 1);
+  if (editId === id) cancelarEdicao(true);
+  salvar(); render();
+  toast(`«${item.nome}» retirado do quadro`, 'desfazer', () => {
+    state.items.splice(idx, 0, item); salvar(); render();
+  });
+}
+
+/* ============ formulário ============ */
+function dobrar(fechada){
+  $('#prancheta').classList.toggle('fechada', fechada);
+  $('#dobra-txt').textContent = fechada ? 'novo artigo' : 'ocultar formulário';
+  $('#dobra-ico').setAttribute('href', fechada ? '#i-mais' : '#i-chev');
+}
+
+function iniciarEdicao(id){
+  const i = state.items.find(x => x.id === id);
+  if (!i) return;
+  editId = id;
+  dobrar(false);
+  $('#f-nome').value  = i.nome;
+  $('#f-qtd').value   = i.qty ?? 1;
+  $('#f-uni').value   = i.uni || 'un';
+  $('#f-uni-suf').textContent = i.uni || 'un';
+  $('#f-preco').value = i.preco == null ? '' : String(i.preco).replace('.', ',');
+  $('#f-loja').value  = i.loja || '';
+  $('#f-nota').value  = i.nota || '';
+  $(`input[name="f-cat"][value="${catDe(i)}"]`).checked = true;
+  $('#f-titulo').textContent = 'a corrigir artigo';
+  $('#f-submit-txt').textContent = 'guardar correção';
+  $('#f-submit-ico').setAttribute('href', '#i-check');
+  $('#f-cancelar').hidden = false;
+  $('#prancheta').classList.add('a-editar');
+  $$('.slip.a-editar').forEach(el => el.classList.remove('a-editar'));
+  document.querySelector(`.slip[data-id="${id}"]`)?.classList.add('a-editar');
+  $('#prancheta').scrollIntoView({ behavior:'smooth', block:'nearest' });
+  $('#f-nome').focus();
+}
+
+function cancelarEdicao(silencioso){
+  editId = null;
+  $('#f-titulo').textContent = 'escrever na lista';
+  $('#f-submit-txt').textContent = 'pregar no quadro';
+  $('#f-submit-ico').setAttribute('href', '#i-mais');
+  $('#f-cancelar').hidden = true;
+  $('#prancheta').classList.remove('a-editar');
+  $$('.slip.a-editar').forEach(el => el.classList.remove('a-editar'));
+  $('#f-nome').value = ''; $('#f-qtd').value = '1'; $('#f-uni').value = 'un';
+  $('#f-uni-suf').textContent = 'un';
+  $('#f-preco').value = ''; $('#f-nota').value = ''; $('#f-loja').value = '';
+  $('#f-erro').hidden = true;
+  if (!silencioso) $('#f-nome').focus();
+}
+
+function submeter(e){
+  e.preventDefault();
+  const nome = $('#f-nome').value.trim();
+  if (!nome){
+    $('#f-erro').hidden = false;
+    const c = $('#f-nome');
+    c.classList.remove('tremor'); void c.offsetWidth; c.classList.add('tremor');
+    c.focus();
+    return;
+  }
+  $('#f-erro').hidden = true;
+  const dados = {
+    nome,
+    qty:   parseNum($('#f-qtd').value) || 1,
+    uni:   $('#f-uni').value,
+    preco: $('#f-preco').value.trim() === '' ? null : parseNum($('#f-preco').value),
+    loja:  $('#f-loja').value.trim(),
+    cat:   $('input[name="f-cat"]:checked')?.value || 'mercearia',
+    nota:  $('#f-nota').value.trim(),
+  };
+  if (editId){
+    Object.assign(state.items.find(x => x.id === editId), dados);
+    toast('Correção guardada');
+    cancelarEdicao(true);
+  } else {
+    const id = uid();
+    state.items.push({ id, comprado:false, criadoEm:Date.now(), ...dados });
+    state.novoId = id;
+    toast(`«${nome}» pregado no quadro`);
+    /* mantém loja e categoria para artigos seguidos */
+    $('#f-nome').value = ''; $('#f-qtd').value = '1';
+    $('#f-preco').value = ''; $('#f-nota').value = '';
+    $('#f-nome').focus();
+  }
+  salvar(); render();
+}
+
+/* ============ ações gerais ============ */
+function textoLista(){
+  const grupos = {};
+  state.items.forEach(i => (grupos[lojaDe(i)] ??= []).push(i));
+  const d = new Date();
+  const data = `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+  const tr = '─'.repeat(34);
+  let out = `LISTA DE COMPRAS · A DESPENSA\n${data}\n${tr}`;
+  for (const loja of Object.keys(grupos).sort((a,b) => a.localeCompare(b,'pt'))){
+    out += `\n\n${loja.toUpperCase()}\n`;
+    for (const i of grupos[loja]){
+      out += `${i.comprado ? '[×]' : '[ ]'} ${i.nome} · ${fmtN(i.qty)} ${i.uni || 'un'}`
+           + `${i.preco != null ? ` · ${eur(tI(i))}` : ''}${i.nota ? `  (${i.nota})` : ''}\n`;
+    }
+  }
+  const est  = state.items.reduce((s,i) => s + (tI(i) ?? 0), 0);
+  const pago = state.items.filter(i => i.comprado).reduce((s,i) => s + (tI(i) ?? 0), 0);
+  out += `\n${tr}\nESTIMADO .... ${eur(est)}\nCOMPRADO .... ${eur(pago)}\nFALTA ....... ${eur(est - pago)}\n`;
+  return out;
+}
+
+async function copiarLista(){
+  const txt = textoLista();
+  try{ await navigator.clipboard.writeText(txt); }
+  catch(e){
+    const ta = document.createElement('textarea');
+    ta.value = txt; document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); ta.remove();
+  }
+  toast('Lista copiada — pronta a partilhar');
+}
+
+function limparComprados(){
+  const rem = state.items.filter(i => i.comprado);
+  if (!rem.length){ toast('Ainda não há artigos comprados'); return; }
+  const antes = [...state.items];
+  state.items = state.items.filter(i => !i.comprado);
+  salvar(); render();
+  toast(`${rem.length} ${rem.length === 1 ? 'papel retirado' : 'papéis retirados'} do quadro`, 'desfazer', () => {
+    state.items = antes; salvar(); render();
+  });
+}
+
+function limparQuadro(){
+  if (!state.items.length){ toast('O quadro já está limpo'); return; }
+  const antes = [...state.items];
+  state.items = [];
+  salvar(); render();
+  toast('Quadro limpo — lista nova', 'desfazer', () => {
+    state.items = antes; salvar(); render();
+  });
+}
+
+/* ============ sincronização de controlos ============ */
+function syncControlos(){
+  const v = state.view;
+  $('#t-busca').value = v.busca;
+  $('#t-limpa').hidden = !v.busca;
+  $('#t-pend').checked = v.pend;
+  $('#t-ordem').value  = v.ordem;
+  $$('.seg button').forEach(b => {
+    const on = b.dataset.agrupar === v.agrupar;
+    b.classList.toggle('on', on);
+    b.setAttribute('aria-pressed', on);
+  });
+}
+function aplicarView(){ syncControlos(); salvar(); render(); }
+
+/* ============ eventos ============ */
+ $('#form').addEventListener('submit', submeter);
+ $('#f-cancelar').addEventListener('click', () => cancelarEdicao());
+ $('#f-uni').addEventListener('change', () => $('#f-uni-suf').textContent = $('#f-uni').value);
+ $('#dobra').addEventListener('click', () => {
+  const fechada = !$('#prancheta').classList.contains('fechada');
+  dobrar(fechada);
+  if (!fechada) $('#f-nome').focus();
+});
+
+ $('#t-busca').addEventListener('input', e => {
+  state.view.busca = e.target.value;
+  $('#t-limpa').hidden = !e.target.value;
+  salvar(); renderZonas();
+});
+ $('#t-limpa').addEventListener('click', () => {
+  state.view.busca = ''; syncControlos(); salvar(); renderZonas(); $('#t-busca').focus();
+});
+ $('#t-cats').addEventListener('click', e => {
+  const b = e.target.closest('.fchip'); if (!b) return;
+  state.view.cat = b.dataset.cat; aplicarView();
+});
+ $$('.seg button').forEach(b => b.addEventListener('click', () => {
+  state.view.agrupar = b.dataset.agrupar; aplicarView();
+}));
+ $('#t-pend').addEventListener('change', e => { state.view.pend = e.target.checked; aplicarView(); });
+ $('#t-loja').addEventListener('change', e => { state.view.loja = e.target.value; aplicarView(); });
+ $('#t-ordem').addEventListener('change', e => { state.view.ordem = e.target.value; aplicarView(); });
+
+ $('#zonas').addEventListener('change', e => {
+  if (!e.target.matches('[data-ac="toggle"]')) return;
+  const slip = e.target.closest('.slip');
+  alternar(slip.dataset.id, slip);
+});
+ $('#zonas').addEventListener('click', e => {
+  const b = e.target.closest('[data-ac]');
+  if (!b) return;
+  if (b.dataset.ac === 'limparfiltros'){
+    state.view = { ...VIEW_PADRAO, agrupar:state.view.agrupar, ordem:state.view.ordem };
+    aplicarView(); return;
+  }
+  const slip = b.closest('.slip'); if (!slip) return;
+  const id = slip.dataset.id;
+  if (b.dataset.ac === 'editar') iniciarEdicao(id);
+  if (b.dataset.ac === 'apagar') apagar(id);
+});
+
+ $('#btn-copiar').addEventListener('click', copiarLista);
+ $('#btn-limpar-comp').addEventListener('click', limparComprados);
+ $('#btn-limpar-tudo').addEventListener('click', limparQuadro);
+
+/* atalhos: "/" pesquisa · Esc sai da edição ou limpa a pesquisa */
+document.addEventListener('keydown', e => {
+  const emCampo = /^(INPUT|SELECT|TEXTAREA)$/.test(e.target.tagName);
+  if (e.key === '/' && !emCampo){ e.preventDefault(); $('#t-busca').focus(); }
+  if (e.key === 'Escape'){
+    if (editId) cancelarEdicao();
+    else if (state.view.busca){ state.view.busca = ''; syncControlos(); salvar(); renderZonas(); }
+  }
+});
+
+/* ============ arranque ============ */
+if (!carregar()) seed();
+syncControlos();
+render();
+const d = new Date();
+ $('#p-data').textContent = `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+</script>
+</body>
+</html>
